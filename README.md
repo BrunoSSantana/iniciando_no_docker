@@ -40,9 +40,10 @@ Ferramenta de empacotamento de uma aplicação e suas dependências em um contai
 
 De forma resumida, o Dokcer possui menos camadas como podemos ver na imagem abaixo, mas podemos tratar como um tipo de virtualização.
 
-![arquitetura docker x vm](https://docker-unleashed.readthedocs.io/_images/virt_docker.png)
+<img height=400 src="https://docker-unleashed.readthedocs.io/_images/virt_docker.png"></img>
 
-[- Ref](https://www.youtube.com/watch?v=hCMcQfGb4cA&t)
+
+[Referência](https://www.youtube.com/watch?v=hCMcQfGb4cA&t)
 
 ## Arquitetura do Docker
 
@@ -52,7 +53,7 @@ De forma resumida, o Dokcer possui menos camadas como podemos ver na imagem abai
 
 **Registry:** Servidor remoto de onde o docker daemon irá fazer o download das imagens.
 
-![](https://wiki.aquasec.com/download/attachments/2854889/Docker_Architecture.png?version=1&modificationDate=1520172700553&api=v2)
+<img height=400 src="https://wiki.aquasec.com/download/attachments/2854889/Docker_Architecture.png?version=1&modificationDate=1520172700553&api=v2"></img>
 
 > Aqui não iremos abordar a instalação do docker, mas deixarei um vídeo onde tbm usei como base para construir esse conteúdo.
 
