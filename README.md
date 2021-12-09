@@ -2,9 +2,9 @@
 
 Repositório criado com o propósito de auxiliar nos estudos com o docker e prover fonte de consulta referencial para futuras utulizações em projetos pessoais o quaisquer outro.
 
-## O que é Docker
+## Contêineres
 
-*"Docker é um conjunto de produtos de plataforma como serviço que usam virtualização de nível de sistema operacional para entregar software em pacotes chamados contêineres. Os contêineres são isolados uns dos outros e agrupam seus próprios softwares, bibliotecas e arquivos de configuração."* [- Wikipédia](https://pt.wikipedia.org/wiki/Docker_(software))
+Antes de começarmos entender o que é o Docker, precisamos entender o princípio fundamental no qual ele é criado, que é justamente o container.
 
 **Mas o que seria contêineres?**
 De forma resumida um contêiner é um tipon de virtualização onde cada serviço está responssável por um contêiner, garantindo que cada ferramenta trabalhe de forma isolada e com o mínimo de recursos. Dexei um vídeo que fala com mais detalhes o uso de contêineres. O uso de contêineres não é só usado no desenvolvimento, mas também nos testes e em produção.
@@ -38,20 +38,21 @@ Ferramenta de empacotamento de uma aplicação e suas dependências em um contai
 
 **Mas o Docker é uma MV (máquina virtual)?**
 
-de forma resumida, o Dokcer possui menos camadas como podemos ver na imagem abaixo, mas podemos tratar como um tipo de virtualização.
-
-[- Ref](https://www.youtube.com/watch?v=hCMcQfGb4cA&t)
+De forma resumida, o Dokcer possui menos camadas como podemos ver na imagem abaixo, mas podemos tratar como um tipo de virtualização.
 
 ![arquitetura docker x vm](https://docker-unleashed.readthedocs.io/_images/virt_docker.png)
 
+[- Ref](https://www.youtube.com/watch?v=hCMcQfGb4cA&t)
+
 ## Arquitetura do Docker
-![](https://wiki.aquasec.com/download/attachments/2854889/Docker_Architecture.png?version=1&modificationDate=1520172700553&api=v2)
 
 **Client**: A interface usada pelo usuário pra interagir com o Docker, de forma mais resumida, seria o linha de comando.
 
 **Docker Host**: Máquina onde os contêineres estão rodando, na qual o docker daemon, o serviço do docker, gerencia as imagens a qual será a base para criar os contêineres.
 
 **Registry:** Servidor remoto de onde o docker daemon irá fazer o download das imagens.
+
+![](https://wiki.aquasec.com/download/attachments/2854889/Docker_Architecture.png?version=1&modificationDate=1520172700553&api=v2)
 
 > Aqui não iremos abordar a instalação do docker, mas deixarei um vídeo onde tbm usei como base para construir esse conteúdo.
 
@@ -98,4 +99,74 @@ E para subirmos o container:
 ```bash
 docker -d --name nome-do-container imagem-criada:tag
 ```
+
+## Contêineres e seus arquivos
+
+Arquivos vivem e morrem" no contexto dos contêineres, ou seja, caso for gerado alguma informação a partir do uso de determinado container, será perdido depois de matarmos o serviço, para que consigamos salvar tais arquivos, podemos utilizar *mount points*, algo semelhante a uma pasta compartilhada entre o container e a sua máquina, agora ela não será apagada ao matarmos o container.
+
+Vamos entender melhor em um exemplo com o postgresql.
+
+Para isso utilizamos a flag '-v' para conectar os "volumes" e -p para conectar as portas:
+
+```sh
+docker run --name postgres \
+  -v /mnt/pgdata:/var/lib/postgresql/data/pgdata \
+  -e LANG=en_US.utf8 \
+  -e PGDATA=/var/lib/postgresql/data/pgdata \
+  -e POSTGRES_PASSWORD=postgres \
+  -p 5432:5432 -d postgres:9.3.6
+```
+**IMPORTANTE:**
+- -v diretorio-na-sua-maquina:diretorio-no-container**
+- "/var/lib/postgresql/data/pgdata" diretório no qual o postgresql armazena seus dados na máquina.
+- -p porta-da-sua-maquina:porta-dentro-do-container
+
+## Comandos iniciais úteis
+
+```bash
+docker exec -ti nome-do-container bash
+```
+
+Com esse comando, o docker abre um novo bash dentro do container.
+
+```bash
+docker exec -ti nome-do-container bash -c 'top -b -n l'
+```
+
+Comando mostra os processos sendo executados no container mas que pode ser usado também o comando `docker stats`.
+
+## Likando contêineres
+
+Links servem para que contêineres se comuniquem de fora segura. Para que isso funcione, é importante observar o seguintes pontos:
+- Subir contêineres bom a flag `--name` (não é necessário, mas facilita)
+- Subir o container que quer se conectar com os outros, com a flag `--link`
+- Subir os contêineres na ordem
+
+Exemplo:
+```bash
+docker run -d --name db training/postgres
+docker run -d -p 5000:5000 --name web \ 
+--link db training/webapp python app.py
+```
+
+Para facilitar a linkagem dos contêineres, é usado o Docker-compose, o orquestrador nativo do docker
+
+## Comandos para limpar a bagunça
+
+> Apagando contêineres que já morreram
+```sh
+docker rm -v $(docker ps -a -q -f status=exited)
+```
+
+> Apagando imagens soltas
+```bash
+docker rmi $(docker images -f dangling=true -q)
+```
+
+> Limpando volumes esquecidos
+```bash
+docker run -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker -rm martin/docker-cleanup-volumes
+```
+
+
 
