@@ -168,5 +168,7 @@ docker rmi $(docker images -f dangling=true -q)
 docker run -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker -rm martin/docker-cleanup-volumes
 ```
 
+## Entendendo o Dockerfile
 
+O Docker pode construir imagens automaticamente lendo as instruções de um Dockerfile. Um Dockerfile é um documento de texto que contém todos os comandos que um usuário pode chamar na linha de comando para montar uma imagem. Usando o docker build, os usuários podem criar um build automatizado que executa várias instruções de linha de comando em sucessão.
 
