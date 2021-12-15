@@ -169,7 +169,29 @@ docker rmi $(docker images -f dangling=true -q)
 docker run -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker -rm martin/docker-cleanup-volumes
 ```
 
-## Entendendo o Dockerfile
+## Entendendo o Dockerfile e Sintaxe
 
-O Docker pode construir imagens automaticamente lendo as instruções de um Dockerfile. Um Dockerfile é um documento de texto que contém todos os comandos que um usuário pode chamar na linha de comando para montar uma imagem. Usando o docker build, os usuários podem criar um build automatizado que executa várias instruções de linha de comando em sucessão.
+O Docker pode construir imagens automaticamente lendo as instruções de um arquivo `Dockerfile`. O `Dockerfile` é um documento de texto que contém todos os comandos para montagem de uma imagem. Usando o comando `docker build`, os usuários podem iniciar um build que executará as várias instruções contidas no arquivo `Dockerfile`. Para mais detalhes acesse a Docuimentação oficial [aqui](https://docs.docker.com/engine/reference/builder/).
 
+Durante a criação do nosso `Dockerfile` temos que ter em mente que ao criar e niomear nosso arquivo o `Docker` nos dá a liberdade de escoher qualquer nome, toda via, se o arquivo for diferente do nome padrão (`Dockerfile`), teremos que passar o caminho do arquivo no momento do build, como por exemplo: ` docker build -f /path/to/a/Dockerfile .`.
+
+Agora vamos abordar um pouco da sintaxe do Dockerfile que irá orientar a criação dos nossos containers.
+
+### FROM
+
+A instrução `FROM` define a base da imagem que iremos criar, como por exemplo, em projetos nodejs é referenciado `node:tag` e em projetos java seria `openjdk`. A imagem que será baixada por padrão será a do DokcerHub.
+
+Sintaxe padrão:
+
+```dockerfile
+FROM [--platform=<platform>] <image>[:<tag>] [AS <name>]
+```
+
+### RUN
+
+Com ela, podemos definir quais serão os comandos executados na etapa de criação de camadas da imagem. O comando é executado em um shell, que por padrão é `/ bin / sh -c` no Linux ou `cmd /S /C` no Windows.
+
+Sintaxe Padrão
+```
+RUN <command> 
+```
