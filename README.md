@@ -169,7 +169,7 @@ docker rmi $(docker images -f dangling=true -q)
 docker run -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker -rm martin/docker-cleanup-volumes
 ```
 
-## Entendendo o Dockerfile e Sintaxe
+## Entendendo o Dockerfile
 
 O Docker pode construir imagens automaticamente lendo as instruções de um arquivo `Dockerfile`. O `Dockerfile` é um documento de texto que contém todos os comandos para montagem de uma imagem. Usando o comando `docker build`, os usuários podem iniciar um build que executará as várias instruções contidas no arquivo `Dockerfile`. Para mais detalhes acesse a Docuimentação oficial [aqui](https://docs.docker.com/engine/reference/builder/).
 
@@ -189,9 +189,78 @@ FROM [--platform=<platform>] <image>[:<tag>] [AS <name>]
 
 ### RUN
 
-Com ela, podemos definir quais serão os comandos executados na etapa de criação de camadas da imagem. O comando é executado em um shell, que por padrão é `/ bin / sh -c` no Linux ou `cmd /S /C` no Windows.
+Com o comando `RUN`, podemos definir quais serão os comandos executados na etapa de criação de camadas da imagem e cada camada gerada por ele poderá ser reutilizada na criação de outras imagens. O comando é executado em um shell, que por padrão é `/ bin / sh -c` no Linux ou `cmd /S /C` no Windows.
 
 Sintaxe Padrão
+
 ```
-RUN <command> 
+RUN <comando> 
 ```
+
+ou
+
+```
+RUN ["comandos", "em", "array"]
+```
+
+### CMD
+
+O comando `CMD` funciona semelhante ao comando `RUN`, com algumas diferenças:
+
+- Executado uma vez por arquivo, caso o arquivo possuir mais de um, a prioridade será do último
+- As instruções serão executadas apenas na criação do container que fizer uso da imagem
+- Caso passássemos algo como `docker run -it <id da imagem> /bin/bash`, ele sobrescreveria o comando `CMD`  
+
+O ENTRYPOINT funciona bem semenlhante, uma das principais diferenças é que seus parâmetros não são sobrescritos igual ao CMD.
+  
+### VOLUME
+
+A instrução `VOLUME` cria um ponto de montagem com o nome especificado a qual será compartilhada entre o container e o host. Todo arquivo criado dentro dessa pasta será acessível a partir da máquina host no caminho `/var/lib/docker/volumes`.
+
+#### ADD
+
+O papel do ADD é fazer a cópia de um arquivo, diretório ou até mesmo fazer o download de uma URL de nossa máquina host e colocar dentro da imagem. ADD também tem alguns efeitos interessantes, como: caso o arquivo que esteja sendo passado seja um arquivo de extensão tar, ele fará a descompressão automaticamente.
+
+Sintaxe básica:
+
+```dockerfile
+ADD <src>... <dest>
+ADD ["<src>",... "<dest>"]
+```
+
+### COPY
+
+O `COPY` é semelhante ao `ADD` no que se refere a sintaxe porém e só possui a funcionalidade de copiar arquivos entre o host e o container.
+
+Sintaxe básica:
+
+```dockerfile
+COPY <src>... <dest>
+COPY ["<src>",... "<dest>"]
+```
+
+### WORKDIR
+
+Essa instrução tem o propósito de definir o nosso ambiente de trabalho. Com ela, definimos onde as instruções CMD, RUN, ENTRYPOINT, ADD e COPY executarão suas tarefas, além de definir o diretório padrão que será aberto ao executarmos o container.
+
+Sintaxe básica:
+
+```dockerfile
+WORKDIR <path>
+```
+
+### EXPOSE
+
+Há uma certa dúvida quanto ao uso dessa instrução. Muitas pessoas pensam que o EXPOSE serve para definir em qual porta nossa aplicação rodará dentro do container, mas na verdade o propósito é servir apenas para documentação.
+
+Essa instrução não publica a porta efetivamente, já que o propósito dela é fazer uma comunicação entre quem escreveu o Dockerfile e quem rodará o container.
+
+*Obs.: material retirado de [Desvendando o DockerFile - Alura](https://www.alura.com.br/artigos/desvendando-o-dockerfile)
+Mais detalhes em [Dockerfile reference](https://docs.docker.com/engine/reference/builder/)*
+  
+
+
+
+
+
+
