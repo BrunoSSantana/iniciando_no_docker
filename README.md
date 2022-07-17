@@ -7,7 +7,7 @@ Repositório criado com o propósito de auxiliar nos estudos com o docker e prov
 Antes de começarmos entender o que é o Docker, precisamos entender o princípio fundamental no qual ele é criado, que é justamente o container.
 
 **Mas o que seria contêineres?**
-De forma resumida um contêiner é um tipon de virtualização onde cada serviço está responssável por um contêiner, garantindo que cada ferramenta trabalhe de forma isolada e com o mínimo de recursos. Dexei um vídeo que fala com mais detalhes o uso de contêineres. O uso de contêineres não é só usado no desenvolvimento, mas também nos testes e em produção.
+De forma resumida um contêiner é uma forma de fazer isolamento da parte mais lógica no sentido de usuários, processos network, e outros e dos recursos da máquina, cpu, memória ram, i/o (input - output do disco), garantindo que cada contêiner trabalhe de forma isolada e com o mínimo de recursos. Dexei um vídeo que fala com mais detalhes o uso de contêineres. O uso de contêineres não é só usado no desenvolvimento, mas também nos testes e principalmente em produção para realização do deploy.
 
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/-pUZBovqRcU/0.jpg)](https://www.youtube.com/watch?v=-pUZBovqRcU)
 
@@ -26,11 +26,12 @@ Ao colocarmos uma aplicação rodando em ambiente produção nos deparamos com o
 - Imutabilidade / Empacotamento da aplicação
 - Facilidade no deploy
 
-Entre as ferramentas que utilizam a tecnologia de contêineres, o Docker é a padrão no mercado por n motivos e por tanto iremos trabalhar com ela.
+Entre as ferramentas que utilizam a tecnologia de containers, o Docker é a padrão no mercado por n motivos e por tanto iremos trabalhar com ela.
 
 **O que é o Docker?**
 
-Ferramenta de empacotamento de uma aplicação e suas dependências em um container virtual que pode ser executado em um servidor Linux.
+Ferramenta de empacotamento de uma aplicação e suas dependências em um container virtual que pode ser executado em um servidor Linux, ou seja, o Docker serve para nos auxilar a administrar containers e os recursos da nossa máquina.
+
 - Ambiente de execução auto-contido
 - Kernel compartilhado com Host
 - Isolamento dos demais contêineres
@@ -38,10 +39,9 @@ Ferramenta de empacotamento de uma aplicação e suas dependências em um contai
 
 **Mas o Docker é uma MV (máquina virtual)?**
 
-De forma resumida, o Dokcer possui menos camadas como podemos ver na imagem abaixo, mas podemos tratar como um tipo de virtualização.
+O Dokcer possui menos camadas como podemos ver na imagem abaixo, e diferente da virtualização onde para cada máquina existe um SO e um kernel nos containers e por consequência, no docker não existe isso.
 
 <img height=400 src="https://docker-unleashed.readthedocs.io/_images/virt_docker.png"></img>
-
 
 [Referência](https://www.youtube.com/watch?v=hCMcQfGb4cA&t)
 
@@ -67,8 +67,10 @@ docker run --name nome-do-container  imagem:tag
 
 **Mas o que é uma IMAGEM?**
 
-Uma imagem é um modelo/template/"ISO"/"VDI" apenas de leitura, que é utilizado para subir um container.
-Mas nem toda imagem que utilizamos "é um sistema operacional". O Docker permite que construamos nossas próprias imagens e a utilizemos como base para containeres, utilizando um arquivo chamadi Dockerfile, que a partir dele damos as instruções para ser montado uma imagem que será a base para executarmos nossos containeres.
+Uma imagem é um modelo/template/"ISO"/"VDI" apenas de leitura (READ ONLY), que é utilizado para subir um container.
+Mas nem toda imagem que utilizamos é um "sistema operacional". O Docker permite que construamos nossas próprias imagens e a utilizemos como base para containers, utilizando um arquivo chamado Dockerfile, que a partir dele damos as instruções para ser montado uma imagem que será a base para executarmos nossos containers.
+
+Uma imagem de container é formado por várias camadas formada por cada instrução contida no seu `Dockerfile`. Apenas a última camada é passiva de alteração (READ AND WRITE) e existe apenas em  tempo de execução. O ideal é que um Dockerfile não possua instruções que possam interferir em camadas anteriores, pois, cada camada é isolada uma da outra e essas camadas são READ ONLY.
 
 Docckerfile (exemplo):
 
@@ -99,7 +101,7 @@ E para subirmos o container:
 docker -d --name nome-do-container imagem-criada:tag
 ```
 
-## Contêineres e seus arquivos
+## Containers e seus arquivos
 
 Arquivos vivem e morrem" no contexto dos contêineres, ou seja, caso for gerado alguma informação a partir do uso de determinado container, será perdido depois de matarmos o serviço, para que consigamos salvar tais arquivos, podemos utilizar *mount points*, algo semelhante a uma pasta compartilhada entre o container e a sua máquina, agora ela não será apagada ao matarmos o container.
 
@@ -121,18 +123,89 @@ docker run --name postgres \
 - -p porta-da-sua-maquina:porta-dentro-do-container
 
 ## Comandos iniciais úteis
-
+**Subir um container em modo interatico com um terminal**
 ```bash
-docker exec -ti nome-do-container bash
+docker container run -ti nome-da-imagem
+```
+**Subir uma container em background**
+```bash
+docker container run -d nome-da-imagem
+```
+**Listar containers**
+```bash
+## em execução
+docker container ls
+## todos os containers
+docker container ls -a
+```
+**Para container em execução**
+```bash
+docker container stop identificador-do-container
+```
+**Iniciar execução do container**
+```bash
+docker container start identificador-do-container
+```
+**Reiniciar execução do container**
+```bash
+docker container restart identificador-do-container
+```
+**Pausar execução do container**
+```bash
+docker container pause identificador-do-container
+```
+**Despausar execução do container**
+```bash
+docker container unpause identificador-do-container
+```
+**Apagar container**
+```bash
+docker container rm identificador-do-container
+```
+**Apagar container em execução**
+```bash
+docker container rm -f identificador-do-container
+```
+**Executar comandos bash via modo interativo:**
+```bash
+docker container exec -ti identificador-do-container bash
+```
+**Mostra processos executados no container:**
+```bash
+docker container exec -ti nome-do-container bash -c 'top -b -n l'
+##  mas que pode ser usado também o comando 'ocker stats'
+```
+**Entrar no container em execução**
+```bash
+docker container attach identificador-do-containern
+```
+**Inspecionar container**
+```bash
+docker container inspect identificador-do-container
+```
+**Verificar recursos utlizados no container**
+```bash
+docker container stats identificador-do-container
+```
+**Verificar processos em execução no container**
+```bash
+docker container top identificador-do-container
+```
+**Limitar recurso de memória ao executar um container**
+```bash
+docker container run -d -m (quantidade de memória em megas)M imagem-docker
+```
+**Limitar recurso de cpu ao executar um container**
+```bash
+docker container run -d --cpus (quantidade de núcleos cpu) imagem-docker
+## Exemplo: docker container run -d --cpus 0.5 imagem-docker
 ```
 
-Com esse comando, o docker abre um novo bash dentro do container.
-
-```bash
-docker exec -ti nome-do-container bash -c 'top -b -n l'
-```
-
-Comando mostra os processos sendo executados no container mas que pode ser usado também o comando `docker stats`.
+## Atalhos
+COMANDO | FUNÇÃO
+--------|-------
+ctrl + D | sair do bash
+ctrl + P + Q | sair do container sem matar o bash
 
 ## Likando contêineres
 
