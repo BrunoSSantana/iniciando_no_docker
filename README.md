@@ -72,35 +72,6 @@ Mas nem toda imagem que utilizamos é um "sistema operacional". O Docker permite
 
 Uma imagem de container é formado por várias camadas formada por cada instrução contida no seu `Dockerfile`. Apenas a última camada é passiva de alteração (READ AND WRITE) e existe apenas em  tempo de execução. O ideal é que um Dockerfile não possua instruções que possam interferir em camadas anteriores, pois, cada camada é isolada uma da outra e essas camadas são READ ONLY.
 
-Docckerfile (exemplo):
-
-```
-FROM imagem[:tag] # Imagem que estamos nos baseando
-
-RUN comando # basicamente o que escrevemos em um script bash
-
-WORKDIR /app # diretório raiz para os comandos seguintes
-
-COPY . /app # Copia arquivos para dentro do container
-
-VOLUME /app # Volumes expostos para fora do container
-
-EXPOSE 3000 # Portas liberadas para fora do container
-
-CMD ["comando", "parametros", ...] # Comando que deve ser execuitando assim que um container sobe
-```
-
-Após a criação do Dockerfile, vamos construir a nossa imagem com o comando:
-
-```bash
-docker -t nome-da-imagem-criada:tag . # este ponto no final representa onde está o arquivo Dockerfile que iremos criar a imagem
-```
-E para subirmos o container:
-
-```bash
-docker -d --name nome-do-container imagem-criada:tag
-```
-
 ## Containers e seus arquivos
 
 Arquivos vivem e morrem" no contexto dos contêineres, ou seja, caso for gerado alguma informação a partir do uso de determinado container, será perdido depois de matarmos o serviço, para que consigamos salvar tais arquivos, podemos utilizar *mount points*, algo semelhante a uma pasta compartilhada entre o container e a sua máquina, agora ela não será apagada ao matarmos o container.
@@ -194,11 +165,21 @@ docker container top identificador-do-container
 **Limitar recurso de memória ao executar um container**
 ```bash
 docker container run -d -m (quantidade de memória em megas)M imagem-docker
+Exemplo: container run -d -m 128M imagem-docker
 ```
 **Limitar recurso de cpu ao executar um container**
 ```bash
 docker container run -d --cpus (quantidade de núcleos cpu) imagem-docker
 ## Exemplo: docker container run -d --cpus 0.5 imagem-docker
+```
+**Editar limitação de limitar recurso cpu ao executar um container**
+```bash
+docker container update informação-a-ser-setada imagem-docker
+## Exemplo: docker container update --cpus 0.5 -m 128M imagem-docker
+```
+**Listar imagens**
+```bash
+docker image ls
 ```
 
 ## Atalhos
@@ -238,6 +219,37 @@ docker rmi $(docker images -f dangling=true -q)
 > Limpando volumes esquecidos
 ```bash
 docker run -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker -rm martin/docker-cleanup-volumes
+```
+
+## Docckerfile:
+
+**Exemplo de criação de imagem com o Dockerfile**
+
+```
+FROM imagem[:tag] # Imagem que estamos nos baseando
+
+RUN comando # basicamente o que escrevemos em um script bash
+
+WORKDIR /app # diretório raiz para os comandos seguintes
+
+COPY . /app # Copia arquivos para dentro do container
+
+VOLUME /app # Volumes expostos para fora do container
+
+EXPOSE 3000 # Portas liberadas para fora do container
+
+CMD ["comando", "parametros", ...] # Comando que deve ser execuitando assim que um container sobe
+```
+
+Após a criação do Dockerfile, vamos construir a nossa imagem com o comando:
+
+```bash
+docker image build -t nome-da-imagem-criada:tag . # este ponto no final representa onde está o arquivo Dockerfile que iremos criar a imagem
+```
+E para subirmos o container:
+
+```bash
+docker -d --name nome-do-container imagem-criada:tag
 ```
 
 ## Entendendo o Dockerfile
